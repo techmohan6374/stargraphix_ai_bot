@@ -1,0 +1,80 @@
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Colors (Light Theme Only - Match Star Graphix Red Theme) */
+  --bg-base: transparent;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f8fafc;
+  --bg-panel: #ffffff;
+  --border-color: #e2e8f0;
+  --border-color-glow: rgba(229, 36, 36, 0.12);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  /* Accent Gradients & Colors (Red / Orange Theme) */
+  --accent-purple: #e52424; /* Star Graphix Red */
+  --accent-purple-glow: rgba(229, 36, 36, 0.2);
+  --accent-cyan: #f97316; /* Warm Orange Accent */
+  --accent-cyan-glow: rgba(249, 115, 22, 0.2);
+  --accent-pink: #be123c; /* Deep Rose Accent */
+  
+  --status-idle: #94a3b8;
+  --status-connecting: #d97706;
+  --status-active: #16a34a;
+  --status-error: #dc2626;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 25px -3px rgba(229, 36, 36, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-widget: 0 12px 30px rgba(229, 36, 36, 0.1), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(229, 36, 36, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(229, 36, 36, 0.35);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  color: inherit;
+}
