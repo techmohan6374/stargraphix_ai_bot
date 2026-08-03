@@ -6,60 +6,63 @@ import Visualizer from './components/Visualizer';
 const DEEPGRAM_API_KEY = 'c7e39f40831728b00238c6c3b376be5a13316912';
 const VOICE_ID = 'cgSgspJ2msm6clMCkdW9';
 const ENDPOINT = 'wss://agent.deepgram.com/v1/agent/converse';
-const GREETING = 'Hello! How may I help you?';
+const GREETING = 'Hello! Welcome to Star Graphix. How can I help you today?';
 
 const THINK_PROMPT = `#Role
-You are a general-purpose virtual assistant speaking to users over the phone. Your task is to help them find accurate, helpful information across a wide range of everyday topics.
+You are the virtual assistant for Star Graphix, a company providing professional graphic design, web design, and web development services to help brands shine online. Your goal is to guide users, answer questions, provide service details, share product prices, and offer contact info.
+
+#About Star Graphix
+- Tagline: Digital Solution in one place
+- Leadership: The company CEOs are Veerasamy and Manohar, and Mohanraj is the Assistant CEO.
+- Branches:
+  - Ponnammapet Gate, Salem, Tamilnadu
+  - New Bus Stand, Salem, Tamilnadu
+- Contact Support:
+  - Support Time: 10:00 AM to 9:00 PM
+  - Email: stargraphix2010@gmail.com
+  - Phone: +91 98940 33883, +91 80565 80402
+
+#Services Offered
+- Logo Design: Crafting unique, memorable logos that stand out.
+- Print Design: Creating eye-catching print materials (business cards, brochures).
+- Brand Identity: Developing cohesive brand identity systems.
+- Website Design: Designing stunning, user-friendly websites.
+- Digital Business Card: Creating interactive digital business cards.
+- Web Applications: Building robust and scalable web applications.
+
+#Products & Pricing
+- E-Book: Rs.4000/-
+- Flyer Design: Rs.1000/-
+- Wedding Card Design: Rs.2000/-
+- Instagram Posters: Rs.500/-
+- Resume: Rs.350/-
+- Note Book: Rs.450/-
+- Digital Business Card: Rs.1000/-
+- Brand Logo: Rs.1000/-
+- Book Wrapper: Rs.1500/-
+- Invoice: Rs.900/-
+- Banner: Rs.800/-
+- Business Card Design: Rs.500/-
 
 #General Guidelines
--Be warm, friendly, and professional.
--Speak clearly and naturally in plain language.
--Keep most responses to 1–2 sentences and under 120 characters unless the caller asks for more detail (max: 300 characters).
--Do not use markdown formatting, like code blocks, quotes, bold, links, or italics.
--Use line breaks in lists.
--Use varied phrasing; avoid repetition.
--If unclear, ask for clarification.
--If the user’s message is empty, respond with an empty message.
--If asked about your well-being, respond briefly and kindly.
+- Be warm, friendly, and professional.
+- Speak clearly and naturally in plain conversational language.
+- Keep most responses to 1–2 sentences and under 150 characters unless asked for more details.
+- Do not use markdown formatting (no code blocks, bold, quotes, links, asterisks).
+- Use simple words and keep explanations concise.
+- If asked about company details, pricing, owners (Veerasamy, Manohar, Mohanraj), or services, use the details above to answer accurately.
 
 #Voice-Specific Instructions
--Speak in a conversational tone—your responses will be spoken aloud.
--Pause after questions to allow for replies.
--Confirm what the customer said if uncertain.
--Never interrupt.
-
-#Style
--Use active listening cues.
--Be warm and understanding, but concise.
--Use simple words unless the caller uses technical terms.
+- Speak in a conversational tone—your responses will be spoken aloud.
+- Pause after questions to allow for replies.
+- Never interrupt.
 
 #Call Flow Objective
--Greet the caller and introduce yourself:
-“Hi there, I’m your virtual assistant—how can I help today?”
--Your primary goal is to help users quickly find the information they’re looking for. This may include:
-Quick facts: “The capital of Japan is Tokyo.”
-Weather: “It’s currently 68 degrees and cloudy in Seattle.”
-Local info: “There’s a pharmacy nearby open until 9 PM.”
-Basic how-to guidance: “To restart your phone, hold the power button for 5 seconds.”
-FAQs: “Most returns are accepted within 30 days with a receipt.”
-Navigation help: “Can you tell me the address or place you’re trying to reach?”
--If the request is unclear:
-“Just to confirm, did you mean…?” or “Can you tell me a bit more?”
--If the request is out of scope (e.g. legal, financial, or medical advice):
-“I’m not able to provide advice on that, but I can help you find someone who can.”
-
-#Off-Scope Questions
--If asked about sensitive topics like health, legal, or financial matters:
-“I’m not qualified to answer that, but I recommend reaching out to a licensed professional.”
-
-#User Considerations
--Callers may be in a rush, distracted, or unsure how to phrase their question. Stay calm, helpful, and clear—especially when the user seems stressed, confused, or overwhelmed.
-
-#Closing
--Always ask:
-“Is there anything else I can help you with today?”
--Then thank them warmly and say:
-“Thanks for calling. Take care and have a great day!”`;
+- Greet the caller warmly: "Hello! Welcome to Star Graphix. How can I help you today?"
+- Help the user find information about services, products, pricing, location, or owners.
+- Offer to submit an order or note their contact details if they want to place an order.
+- Always ask if they need anything else before closing.
+- Close warmly: "Thanks for calling Star Graphix. Take care and have a great day!"`;
 
 export default function App() {
   // Widget Visibility State
@@ -73,7 +76,14 @@ export default function App() {
   const [userSpeaking, setUserSpeaking] = useState(false);
 
   // Lists
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sg_bot_messages');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
   const [logs, setLogs] = useState([]);
 
   // Audio References
@@ -93,6 +103,7 @@ export default function App() {
   const durationIntervalRef = useRef(null);
   const messagesEndRef = useRef(null);
   const logsEndRef = useRef(null);
+  const lastActiveTimeRef = useRef(Date.now());
 
   // Auto Scroll
   useEffect(() => {
@@ -102,6 +113,15 @@ export default function App() {
   useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
+
+  // Persist messages to LocalStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('sg_bot_messages', JSON.stringify(messages));
+    } catch (e) {
+      console.error('Failed to save messages to local storage', e);
+    }
+  }, [messages]);
 
   // Cleanup on Unmount
   useEffect(() => {
@@ -125,6 +145,7 @@ export default function App() {
   };
 
   const addMessage = (role, content) => {
+    lastActiveTimeRef.current = Date.now(); // Reset active timer on new message
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     setMessages(prev => {
       if (prev.length > 0) {
@@ -158,19 +179,20 @@ export default function App() {
 
   // Playback Linear16 PCM chunks
   const playPCMChunk = (arrayBuffer) => {
+    lastActiveTimeRef.current = Date.now(); // Reset active timer during playback of audio chunk
     const audioCtx = audioCtxRef.current;
     if (!audioCtx) return;
 
     const int16Array = new Int16Array(arrayBuffer);
     const float32Array = new Float32Array(int16Array.length);
     let sum = 0;
-    
+
     for (let i = 0; i < int16Array.length; i++) {
       const floatVal = int16Array[i] / 32768.0;
       float32Array[i] = floatVal;
       sum += floatVal * floatVal;
     }
-    
+
     const rms = Math.sqrt(sum / int16Array.length);
     agentVolumeRef.current = rms;
 
@@ -189,13 +211,13 @@ export default function App() {
     }
 
     sourceNode.start(playTime);
-    
+
     const nodeRef = {
       node: sourceNode,
       time: playTime,
       duration: playBuffer.duration
     };
-    
+
     activeSourcesRef.current.push(nodeRef);
     nextPlayTimeRef.current = playTime + playBuffer.duration;
 
@@ -208,7 +230,7 @@ export default function App() {
     activeSourcesRef.current.forEach(src => {
       try {
         src.node.stop();
-      } catch (e) {}
+      } catch (e) { }
     });
     activeSourcesRef.current = [];
     nextPlayTimeRef.current = 0;
@@ -235,13 +257,18 @@ export default function App() {
 
     processorNode.onaudioprocess = (e) => {
       const channelData = e.inputBuffer.getChannelData(0);
-      
+
       let sum = 0;
       for (let i = 0; i < channelData.length; i++) {
         sum += channelData[i] * channelData[i];
       }
       const rms = Math.sqrt(sum / channelData.length);
       userVolumeRef.current = rms;
+
+      // If user is speaking, reset active timer
+      if (rms > 0.015) {
+        lastActiveTimeRef.current = Date.now();
+      }
 
       const pcmBuffer = floatTo16BitPCM(channelData);
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -251,7 +278,7 @@ export default function App() {
 
     const silenceGain = audioCtx.createGain();
     silenceGain.gain.setValueAtTime(0, audioCtx.currentTime);
-    
+
     sourceNode.connect(processorNode);
     processorNode.connect(silenceGain);
     silenceGain.connect(audioCtx.destination);
@@ -281,14 +308,16 @@ export default function App() {
       await startMicRecording();
       addLog('success', 'Audio', 'Microphone stream captured.');
       addLog('info', 'System', 'Connecting to Deepgram Voice Agent...');
-      
+
       const socket = new WebSocket(ENDPOINT, ['token', DEEPGRAM_API_KEY]);
       socket.binaryType = 'arraybuffer';
       wsRef.current = socket;
 
       socket.onopen = () => {
         addLog('success', 'WebSocket', 'WebSocket connection established.');
-        
+
+        lastActiveTimeRef.current = Date.now(); // Initialize active timer
+
         keepAliveIntervalRef.current = setInterval(() => {
           if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({ type: "KeepAlive" }));
@@ -298,6 +327,14 @@ export default function App() {
         let seconds = 0;
         setCallDuration('00:00');
         durationIntervalRef.current = setInterval(() => {
+          // Check silence timeout
+          if (Date.now() - lastActiveTimeRef.current >= 10000) {
+            addLog('warning', 'System', 'Call automatically ended due to 10 seconds of inactivity.');
+            addMessage('assistant', 'Call ended due to inactivity.');
+            disconnectSession(true);
+            return;
+          }
+
           seconds++;
           const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
           const secs = (seconds % 60).toString().padStart(2, '0');
@@ -309,7 +346,7 @@ export default function App() {
         if (typeof event.data === 'string') {
           try {
             const data = JSON.parse(event.data);
-            
+
             if (data.type === 'Welcome') {
               addLog('success', 'Deepgram', 'Welcome received. Config applied.');
 
@@ -355,9 +392,9 @@ export default function App() {
               socket.send(JSON.stringify(settingsMessage));
               addLog('info', 'Deepgram', 'Settings message dispatched.');
               setStatus('connected');
-              
+
               addMessage('assistant', GREETING);
-              
+
             } else if (data.type === 'SettingsApplied') {
               addLog('success', 'Deepgram', 'Settings applied successfully.');
             } else if (data.type === 'ConversationText') {
@@ -369,15 +406,18 @@ export default function App() {
               }
             } else if (data.type === 'UserStartedSpeaking') {
               addLog('warning', 'Deepgram', 'User started speaking. Interrupting agent audio.');
+              lastActiveTimeRef.current = Date.now();
               setUserSpeaking(true);
               setAgentSpeaking(false);
               clearPlaybackQueue();
             } else if (data.type === 'AgentStartedSpeaking') {
               addLog('info', 'Deepgram', 'Agent started speaking.');
+              lastActiveTimeRef.current = Date.now();
               setAgentSpeaking(true);
               setUserSpeaking(false);
             } else if (data.type === 'AgentAudioDone') {
               addLog('info', 'Deepgram', 'Agent finished audio stream.');
+              lastActiveTimeRef.current = Date.now();
               setAgentSpeaking(false);
             } else if (data.type === 'Error') {
               addLog('error', 'Deepgram Error', data.message || JSON.stringify(data));
@@ -411,10 +451,10 @@ export default function App() {
     setCallDuration('');
     setAgentSpeaking(false);
     setUserSpeaking(false);
-    
+
     userVolumeRef.current = 0;
     agentVolumeRef.current = 0;
-    
+
     stopMicRecording();
 
     if (keepAliveIntervalRef.current) {
@@ -447,11 +487,11 @@ export default function App() {
 
   return (
     <div className="chatbot-widget-container">
-      
+
       {/* Widget Card (Visible when open) */}
       {isOpen && (
         <div className="chatbot-card">
-          
+
           {/* Header */}
           <header className="widget-header">
             <div className="widget-title-area" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
@@ -508,7 +548,7 @@ export default function App() {
 
           {/* Interactive Voice Area (Orb & wave & controls) */}
           <div className="widget-voice-area">
-            
+
             {/* Visualizer / Waveform */}
             <div className="widget-visualizer-container">
               <Visualizer
@@ -557,8 +597,8 @@ export default function App() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '2px' }}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> {callDuration}
                 </div>
               ) : (
-                <button 
-                  className="widget-btn-icon" 
+                <button
+                  className="widget-btn-icon"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   onClick={() => setActiveTab(activeTab === 'chat' ? 'logs' : 'chat')}
                   title="Toggle Console Logs"
@@ -584,9 +624,9 @@ export default function App() {
       )}
 
       {/* Floating Trigger Button */}
-      <button 
-        className={`chatbot-trigger ${!isOpen ? 'pulsing' : ''}`} 
-        onClick={() => setIsOpen(!isOpen)} 
+      <button
+        className={`chatbot-trigger ${!isOpen ? 'pulsing' : ''}`}
+        onClick={() => setIsOpen(!isOpen)}
         title={isOpen ? "Close Voice Chat" : "Open Voice Chat"}
       >
         {isOpen ? (

@@ -3,34 +3,44 @@
   --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Colors (Light Theme Only - Match Star Graphix Red Theme) */
+  /* Colors (Premium Dark Theme based on Star Graphix Red & Deep Charcoal/Black) */
   --bg-base: transparent;
-  --bg-surface: #ffffff;
-  --bg-surface-hover: #f8fafc;
-  --bg-panel: #ffffff;
-  --border-color: #e2e8f0;
-  --border-color-glow: rgba(229, 36, 36, 0.12);
+  --bg-surface: #1e1e2e;
+  --bg-surface-hover: #2e2e3f;
+  --bg-panel: #11111a;
+  --bg-messages: #161622;
+  --border-color: #2a2a3c;
+  --border-color-glow: rgba(229, 36, 36, 0.25);
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-primary: #f8f9fa;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+
+  /* Bubble Colors */
+  --bubble-ai-bg: #1e293b;
+  --bubble-ai-border: #334155;
+  --bubble-ai-text: #f8f9fa;
+
+  --bubble-user-bg: #4c0519;
+  --bubble-user-border: #881337;
+  --bubble-user-text: #fda4af;
 
   /* Accent Gradients & Colors (Red / Orange Theme) */
-  --accent-purple: #e52424; /* Star Graphix Red */
-  --accent-purple-glow: rgba(229, 36, 36, 0.2);
+  --accent-purple: #ef4444; /* Bright Red for dark mode contrast */
+  --accent-purple-glow: rgba(239, 68, 68, 0.3);
   --accent-cyan: #f97316; /* Warm Orange Accent */
-  --accent-cyan-glow: rgba(249, 115, 22, 0.2);
-  --accent-pink: #be123c; /* Deep Rose Accent */
+  --accent-cyan-glow: rgba(249, 115, 22, 0.35);
+  --accent-pink: #db2777; /* Deep Rose Accent */
   
-  --status-idle: #94a3b8;
-  --status-connecting: #d97706;
-  --status-active: #16a34a;
-  --status-error: #dc2626;
+  --status-idle: #64748b;
+  --status-connecting: #f59e0b;
+  --status-active: #22c55e;
+  --status-error: #ef4444;
 
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-  --shadow-lg: 0 10px 25px -3px rgba(229, 36, 36, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-  --shadow-widget: 0 12px 30px rgba(229, 36, 36, 0.1), 0 4px 12px rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 25px -3px rgba(229, 36, 36, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-widget: 0 12px 30px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(229, 36, 36, 0.15);
 }
 
 * {
@@ -66,12 +76,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(229, 36, 36, 0.15);
+  background: rgba(229, 36, 36, 0.25);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(229, 36, 36, 0.35);
+  background: rgba(229, 36, 36, 0.45);
 }
 
 button, input, select, textarea {
