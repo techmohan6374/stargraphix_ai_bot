@@ -123,6 +123,11 @@ export default function App() {
     }
   }, [messages]);
 
+  // Dispatch postMessage to parent for dynamic iframe resizing
+  useEffect(() => {
+    window.parent.postMessage({ type: 'toggle-chat', isOpen }, '*');
+  }, [isOpen]);
+
   // Cleanup on Unmount
   useEffect(() => {
     return () => {
