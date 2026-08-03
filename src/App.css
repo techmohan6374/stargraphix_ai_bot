@@ -74,7 +74,7 @@
 .chatbot-card {
   pointer-events: auto;
   width: 380px;
-  height: 560px;
+  height: 500px;
   max-width: calc(100vw - 40px);
   max-height: calc(100vh - 100px);
   background: var(--bg-panel);
